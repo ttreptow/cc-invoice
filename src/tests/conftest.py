@@ -12,15 +12,18 @@ from invoice_service.services.service_factory import ServiceFactory
 
 
 @pytest.fixture
-def dummy_service():
+def dummy_line_item_service():
     return Mock(LineItemService)
 
 
+
+
+
 @pytest.fixture
-def mock_service_factory_builder(dummy_service):
+def mock_service_factory_builder(dummy_line_item_service):
     def build(app):
         serv_fact = ServiceFactory(app)
-        serv_fact.register_service(LINE_ITEM_SERVICE, lambda sm: dummy_service)
+        serv_fact.register_service(LINE_ITEM_SERVICE, lambda sf: dummy_line_item_service)
         return serv_fact
     return build
 
@@ -47,5 +50,10 @@ def session_maker():
 
 
 @pytest.fixture
-def invoice_service(session_maker):
-    return LineItemService(session_maker)
+def line_item_service(session_maker):
+    return LineItemService(DummyServiceFactory(session_maker))
+
+
+class DummyServiceFactory:
+    def __init__(self, session_maker):
+        self.session_maker = session_maker

@@ -28,53 +28,53 @@ def assert_item_equal(item, expected_item_dict):
 
 
 class TestInvoiceService:
-    def test_get_line_items_empty(self, invoice_service):
-        items = invoice_service.get_line_items()
+    def test_get_line_items_empty(self, line_item_service):
+        items = line_item_service.get_line_items()
 
         assert items == []
 
-    def test_get_line_items(self, invoice_service, session_maker):
+    def test_get_line_items(self, line_item_service, session_maker):
         add_item(session_maker, DUMMY_ITEM)
 
-        items = list(invoice_service.get_line_items())
+        items = list(line_item_service.get_line_items())
 
         assert len(items) == 1
         assert_item_equal(items[0], DUMMY_ITEM)
 
-    def test_get_line_item(self, invoice_service, session_maker):
+    def test_get_line_item(self, line_item_service, session_maker):
         add_item(session_maker, DUMMY_ITEM)
 
-        item = invoice_service.get_line_item(1)
+        item = line_item_service.get_line_item(1)
 
         assert_item_equal(item, DUMMY_ITEM)
 
-    def test_update_line_item(self, invoice_service, session_maker):
+    def test_update_line_item(self, line_item_service, session_maker):
         add_item(session_maker, DUMMY_ITEM)
 
-        invoice_service.update_line_item(1, {"adjustments": 123.1})
+        line_item_service.update_line_item(1, {"adjustments": 123.1})
 
-        updated_item = invoice_service.get_line_item(1)
+        updated_item = line_item_service.get_line_item(1)
 
         expected = DUMMY_ITEM.copy()
         expected["adjustments"] = 123.1
 
         assert_item_equal(updated_item, expected)
 
-    def test_raise_error_when_updating_readonly(self, invoice_service, session_maker):
+    def test_raise_error_when_updating_readonly(self, line_item_service, session_maker):
         add_item(session_maker, DUMMY_ITEM)
 
         with pytest.raises(ReadOnlyItemValueError):
-            invoice_service.update_line_item(1, {"adjustments": 123.1, "booked_amount": 555.13})
+            line_item_service.update_line_item(1, {"adjustments": 123.1, "booked_amount": 555.13})
 
-        updated_item = invoice_service.get_line_item(1)
+        updated_item = line_item_service.get_line_item(1)
         assert_item_equal(updated_item, DUMMY_ITEM)
 
-    def test_raise_error_when_updaing_invalid_props(self, invoice_service, session_maker):
+    def test_raise_error_when_updaing_invalid_props(self, line_item_service, session_maker):
         add_item(session_maker, DUMMY_ITEM)
 
         with pytest.raises(InvalidUpdateError):
-            invoice_service.update_line_item(1, {"adjustments": 123.1, "booked_amount": 555.13, "something": 333.2})
+            line_item_service.update_line_item(1, {"adjustments": 123.1, "booked_amount": 555.13, "something": 333.2})
 
-        updated_item = invoice_service.get_line_item(1)
+        updated_item = line_item_service.get_line_item(1)
 
         assert_item_equal(updated_item, DUMMY_ITEM)
