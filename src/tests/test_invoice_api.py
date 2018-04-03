@@ -1,24 +1,6 @@
-from unittest.mock import Mock
-
-import pytest
 from flask import json
 
-from invoice_service.app import app
-from invoice_service.app_factory import set_service
-from invoice_service.service import InvoiceService, ItemNotFound, ReadOnlyItemValueError
-
-
-@pytest.fixture
-def dummy_service():
-    return Mock(InvoiceService)
-
-
-@pytest.fixture(autouse=True)
-def invoice_app(dummy_service):
-    app.testing = True
-    with app.test_request_context():
-        set_service(dummy_service)
-        yield app.test_client()
+from invoice_service.service import ItemNotFound, ReadOnlyItemValueError, InvalidUpdateError
 
 
 def set_data(dummy_service, data):
@@ -59,8 +41,15 @@ class TestInvoiceApi:
 
         assert r.status_code == 404
 
-    def test_update_line_item_returns_400_if_invalid_property_set(self, invoice_app, dummy_service):
+    def test_update_line_item_returns_401_if_readonly_property_set(self, invoice_app, dummy_service):
         dummy_service.update_line_item.side_effect = ReadOnlyItemValueError
+
+        r = invoice_app.put("/lineitems/1", data=json.dumps({"something": "value"}))
+
+        assert r.status_code == 401
+
+    def test_update_line_item_returns_400_if_invalid_property_set(self, invoice_app, dummy_service):
+        dummy_service.update_line_item.side_effect = InvalidUpdateError
 
         r = invoice_app.put("/lineitems/1", data=json.dumps({"something": "value"}))
 

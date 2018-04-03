@@ -1,7 +1,7 @@
 from flask import request, jsonify, json, abort
 
 from invoice_service.app_factory import create_app, get_service
-from invoice_service.service import ItemNotFound, ReadOnlyItemValueError
+from invoice_service.service import ItemNotFound, ReadOnlyItemValueError, InvalidUpdateError
 
 app = create_app()
 
@@ -22,4 +22,7 @@ def update_line_item(item_id):
     except ItemNotFound:
         abort(404)
     except ReadOnlyItemValueError:
+        abort(401)
+    except InvalidUpdateError:
         abort(400)
+
