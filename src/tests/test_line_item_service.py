@@ -2,7 +2,7 @@ import pytest
 
 from invoice_service.db_utils import scoped_session
 from invoice_service.models.line_item import LineItem
-from invoice_service.service import ReadOnlyItemValueError, InvalidUpdateError
+from invoice_service.services.line_item_service import ReadOnlyItemValueError, InvalidUpdateError
 
 DUMMY_ITEM = {
         "id": 1,

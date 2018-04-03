@@ -4,10 +4,10 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from invoice_service.app import app
-from invoice_service.app_factory import set_service
+from invoice_service.app_factory import create_app
 from invoice_service.models.base import BaseModel
-from invoice_service.service import InvoiceService
+from invoice_service.services.line_item_service import InvoiceService
+from invoice_service.services.service_factory import set_service
 
 
 @pytest.fixture
@@ -17,6 +17,7 @@ def dummy_service():
 
 @pytest.fixture(autouse=True)
 def invoice_app(dummy_service):
+    app = create_app()
     app.testing = True
     with app.test_request_context():
         set_service(dummy_service)
