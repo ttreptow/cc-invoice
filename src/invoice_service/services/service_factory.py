@@ -24,6 +24,10 @@ class ServiceFactory:
         self.db = SQLAlchemy(flask_app)
         self.registry = {}
 
+    @property
+    def session_maker(self):
+        return self.db.session
+
     def register_service(self, service_name, service_builder):
         self.registry[service_name] = service_builder
 
@@ -31,5 +35,5 @@ class ServiceFactory:
         if service_name not in self.registry:
             raise InvalidServiceError(service_name)
         if not hasattr(g, service_name):
-            setattr(g, service_name, self.registry[service_name](self.db.session))
+            setattr(g, service_name, self.registry[service_name](self))
         return getattr(g, service_name)

@@ -1,7 +1,9 @@
 from flask import Flask, g
 
+from invoice_service.api.invoice_service_api import invoices
 from invoice_service.api.line_item_api import line_items
-from invoice_service.services import LINE_ITEM_SERVICE
+from invoice_service.services import LINE_ITEM_SERVICE, INVOICE_SERVICE
+from invoice_service.services.invoice_service import InvoiceService
 from invoice_service.services.line_item_service import LineItemService
 from invoice_service.services.service_factory import ServiceFactory
 
@@ -9,7 +11,7 @@ from invoice_service.services.service_factory import ServiceFactory
 def build_service_factory(app):
     service_factory = ServiceFactory(app)
     service_factory.register_service(LINE_ITEM_SERVICE, LineItemService)
-
+    service_factory.register_service(INVOICE_SERVICE, InvoiceService)
     return service_factory
 
 
@@ -20,7 +22,7 @@ def create_app(config_file=None, config=None, service_factory_builder=build_serv
     if config:
         app.config.update(config)
     app.register_blueprint(line_items)
-
+    app.register_blueprint(invoices)
     _service_factory = service_factory_builder(app)
 
     class ContextGlobals(Flask.app_ctx_globals_class):

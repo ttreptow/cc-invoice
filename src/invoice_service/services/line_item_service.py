@@ -17,8 +17,8 @@ class InvalidUpdateError(Exception):
 
 
 class LineItemService:
-    def __init__(self, session_maker):
-        self.session_maker = session_maker
+    def __init__(self, service_factory):
+        self.session_maker = service_factory.session_maker
         self.editable_props = {"adjustments"}
 
     def get_line_items(self):
