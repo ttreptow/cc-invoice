@@ -35,7 +35,7 @@ def invoice_app(mock_service_factory_builder):
 
 
 @pytest.fixture
-def invoice_client(invoice_app):
+def app_client(invoice_app):
     return invoice_app.test_client()
 
 
