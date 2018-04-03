@@ -48,7 +48,7 @@ class TestInvoiceService:
     def test_get_total_no_line_items(self, invoice_service):
         total = invoice_service.get_total()
 
-        assert total == 0
+        assert 0 == total
 
     def test_get_total_with_items(self, invoice_service, line_item_service):
         line_items = [LineItem(**item) for item in ITEMS]
@@ -71,3 +71,11 @@ class TestInvoiceService:
 
         assert expected_total_1 == totals[1]
         assert expected_total_3 == totals[3]
+
+    def test_finalize(self, invoice_service, line_item_service):
+        line_item_service.add_items(LineItem(**item) for item in ITEMS + CAMPAIGN_3_ITEMS)
+
+        return_value = invoice_service.finalize()
+
+        assert {"invoice_id": 1} == return_value
+        assert 0 == len(line_item_service.get_line_items())

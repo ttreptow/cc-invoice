@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, Float, String
+from sqlalchemy import Column, Integer, Float, String, ForeignKey
 
 from invoice_service.models.base import BaseModel
 
@@ -13,3 +13,4 @@ class LineItem(BaseModel):
     booked_amount = Column(Float, nullable=False)
     actual_amount = Column(Float, nullable=False)
     adjustments = Column(Float, nullable=False)
+    invoice_id = Column(Integer, ForeignKey('invoices.id'), nullable=True)

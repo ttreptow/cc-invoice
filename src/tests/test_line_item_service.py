@@ -47,22 +47,35 @@ ITEMS = [
 
 def assert_item_equal(item, expected_item_dict):
     for col in LineItem.__table__.c:
-        assert expected_item_dict[col.name] == getattr(item, col.name)
+        if col.name in expected_item_dict:
+            assert expected_item_dict[col.name] == getattr(item, col.name)
+        else:
+            assert getattr(item, col.name) is None
 
 
 class TestInvoiceService:
     def test_get_line_items_empty(self, line_item_service):
         items = line_item_service.get_line_items()
 
-        assert items == []
+        assert [] == items
 
     def test_get_line_items(self, line_item_service):
         line_item_service.add_item(LineItem(**DUMMY_ITEM))
 
         items = list(line_item_service.get_line_items())
 
-        assert len(items) == 1
+        assert 1 == len(items)
         assert_item_equal(items[0], DUMMY_ITEM)
+
+    def test_get_line_items_only_returns_no_invoice_items_by_default(self, line_item_service, session_maker):
+        line_item_service.add_items(LineItem(**item) for item in ITEMS)
+        session = session_maker()
+        session.query(LineItem).filter(LineItem.id == 35).update({"invoice_id": 1})
+
+        items = list(line_item_service.get_line_items())
+
+        assert len(items) == 2
+        assert 35 not in {item.id for item in items}
 
     def test_get_line_item(self, line_item_service):
         line_item_service.add_item(LineItem(**DUMMY_ITEM))
@@ -105,17 +118,37 @@ class TestInvoiceService:
     def test_get_grouped_items(self, line_item_service):
         line_item_service.add_items(LineItem(**item) for item in ITEMS)
 
-        items = line_item_service.get_grouped_items(group_by="campaign_id")
+        items = line_item_service.get_grouped_items("campaign_id")
 
         assert isinstance(items, dict)
         assert len(items[1]) == 1
         assert len(items[2]) == 2
 
+    def test_get_grouped_items_only_returns_no_invoice_items(self, line_item_service, session_maker):
+        line_item_service.add_items(LineItem(**item) for item in ITEMS)
+        session = session_maker()
+        session.query(LineItem).filter(LineItem.id == 35).update({"invoice_id": 1})
+
+        items = line_item_service.get_grouped_items("campaign_id")
+
+        assert isinstance(items, dict)
+        assert len(items[2]) == 2
+        assert 1 not in items
+
     def test_get_grouped_items_with_filter(self, line_item_service):
         line_item_service.add_items(LineItem(**item) for item in ITEMS)
 
-        items = line_item_service.get_grouped_items(group_by="campaign_id", values=[2])
+        items = line_item_service.get_grouped_items("campaign_id", LineItem.campaign_id == 2)
 
         assert isinstance(items, dict)
         assert 1 not in items
         assert 2 == len(items[2])
+
+    def test_set_invoice(self, line_item_service):
+        line_item_service.add_items(LineItem(**item) for item in ITEMS)
+
+        line_item_service.set_invoice(1)
+        found_items = line_item_service.get_line_items(LineItem.invoice_id == 1)
+
+        assert len(ITEMS) == len(found_items)
+        assert 1 == found_items[0].invoice_id

@@ -17,3 +17,8 @@ def get_invoice_total():
 @invoices.route("/current/subtotals")
 def get_subtotals():
     return jsonify(invoice_service.get_grouped_totals(group_by="campaign_id"))
+
+
+@invoices.route("/finalized", methods=["POST"])
+def finalize():
+    return jsonify(invoice_service.finalize()), 201
