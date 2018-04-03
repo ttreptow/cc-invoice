@@ -16,7 +16,7 @@ class InvalidUpdateError(Exception):
     pass
 
 
-class InvoiceService:
+class LineItemService:
     def __init__(self, session_maker):
         self.session_maker = session_maker
         self.editable_props = {"adjustments"}

@@ -8,5 +8,5 @@ setup(
     author="Tim Treptow",
     author_email="tim.treptow@gmail.com",
     url="https://github.com/ttreptow/cc-invoice",
-    install_requires=["flask", "sqlalchemy"]
+    install_requires=["flask", "flask-sqlalchemy", "werkzeug"]
 )
