@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, abort, json, request
 
 from invoice_service.services import LINE_ITEM_SERVICE
-from invoice_service.services.line_item_service import ItemNotFound, ReadOnlyItemValueError, InvalidUpdateError
+from invoice_service.exceptions import ItemNotFound, ReadOnlyItemValueError, InvalidUpdateError
 from invoice_service.services.service_factory import ServiceFactory
 
 line_items = Blueprint('line_items', __name__, url_prefix="/lineitems")

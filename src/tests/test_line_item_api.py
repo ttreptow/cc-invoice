@@ -1,6 +1,6 @@
 from flask import json
 
-from invoice_service.services.line_item_service import ItemNotFound, ReadOnlyItemValueError, InvalidUpdateError
+from invoice_service.exceptions import ItemNotFound, ReadOnlyItemValueError, InvalidUpdateError
 
 
 def set_data(dummy_line_item_service, data):

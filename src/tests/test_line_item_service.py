@@ -1,7 +1,7 @@
 import pytest
 
 from invoice_service.models.line_item import LineItem
-from invoice_service.services.line_item_service import ReadOnlyItemValueError, InvalidUpdateError
+from invoice_service.exceptions import ReadOnlyItemValueError, InvalidUpdateError
 
 DUMMY_ITEM = {
         "id": 1,

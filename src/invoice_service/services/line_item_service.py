@@ -3,19 +3,8 @@ from collections import defaultdict
 from sqlalchemy.orm.exc import NoResultFound
 
 from invoice_service.db_utils import scoped_session
+from invoice_service.exceptions import ItemNotFound, ReadOnlyItemValueError, InvalidUpdateError
 from invoice_service.models.line_item import LineItem
-
-
-class ItemNotFound(Exception):
-    pass
-
-
-class ReadOnlyItemValueError(Exception):
-    pass
-
-
-class InvalidUpdateError(Exception):
-    pass
 
 
 class LineItemService:

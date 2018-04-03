@@ -2,9 +2,7 @@ from flask import g
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.local import LocalProxy
 
-
-class InvalidServiceError(Exception):
-    pass
+from invoice_service.exceptions import InvalidServiceError
 
 
 class ServiceFactory:
