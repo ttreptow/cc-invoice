@@ -22,6 +22,41 @@ set CCINVOICE_CONFIG=ccinvoice.cfg
 flask run
 ```
 
+## Available APIs
+### GET /lineitems
+Gets the active (not part of a finalized invoice) line items, filtered by any filters set with the filters API
+### PUT /lineitems/\<id\>
+Updates a line item
+
+Payload should be a JSON dictionary with the format:
+```json
+{
+"adjustments": 1234.5
+}
+```
+
+### PUT /lineitems/filter
+Sets a filter on the line items
+
+Payload:
+```json
+{
+"field_name": "name of line item field to filter", # , e.g. "campaign_id"
+"operation": "eq", #one of "eq" or "in"
+"values": # for "eq", a single value, for "in" a list of values
+}
+```
+
+### GET /invoices/current/total
+Gets the total for the current filtered line items
+
+### GET /invoices/current/subtotals
+Gets the subtotals grouped by campaign id for filtered line items
+
+### PUT /invoices/finalized
+Finalizes the invoice with the current filtered line items.
+
+
 ## Running tests
 1. Install pytest with ```pip install pytest```
 1. Run tests with ```pytest``` (it should find the tests automatically)
