@@ -152,3 +152,13 @@ class TestInvoiceService:
 
         assert len(ITEMS) == len(found_items)
         assert 1 == found_items[0].invoice_id
+
+    def test_active_filters_applied(self, line_item_service, filter_service):
+        items = [LineItem(**item) for item in ITEMS]
+        line_item_service.add_items(items)
+        filter_service.add_filter("campaign_id", "eq", 1)
+
+        items = line_item_service.get_line_items()
+
+        assert 1 == len(items)
+        assert items[0].campaign_id == 1

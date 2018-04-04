@@ -3,30 +3,26 @@ from collections import defaultdict
 from sqlalchemy.orm.exc import NoResultFound
 
 from invoice_service.exceptions import ItemNotFound, ReadOnlyItemValueError, InvalidUpdateError
+from invoice_service.filters.line_item_filters import build_filter_from_model
 from invoice_service.models.line_item import LineItem
-
-
-def add_filters(base_query, filters):
-    if len(filters) == 0:
-        filters = [LineItem.invoice_id.is_(None)]
-    for f in filters:
-        base_query = base_query.filter(f)
-    return base_query
+from invoice_service.services import FILTER_SERVICE
+from invoice_service.services.item_filter_service import ItemFilterService
 
 
 class LineItemService:
     def __init__(self, service_factory):
         self.session_maker = service_factory.session_maker
+        self.filter_service = service_factory.create_proxy_service(FILTER_SERVICE)  # type: ItemFilterService
         self.editable_props = {"adjustments"}
 
     def get_line_items(self, *filters):
         session = self.session_maker()
-        return add_filters(session.query(LineItem), filters).all()
+        return self.add_filters(session.query(LineItem), filters).all()
 
     def get_grouped_items(self, group_by, *filters):
         session = self.session_maker()
         group_col = getattr(LineItem, group_by)
-        items = add_filters(session.query(group_col, LineItem), filters)
+        items = self.add_filters(session.query(group_col, LineItem), filters)
         grouped = defaultdict(list)
         for val, item in items:
             grouped[val].append(item)
@@ -66,3 +62,12 @@ class LineItemService:
         session.query(LineItem).filter(LineItem.invoice_id.is_(None)).update({"invoice_id": invoice_id},
                                                                              synchronize_session=False)
         session.commit()
+
+    def add_filters(self, base_query, filters):
+        if len(filters) == 0:
+            active_filters = [build_filter_from_model(filt) for filt in self.filter_service.get_active_filters()]
+            filters = [LineItem.invoice_id.is_(None)] + active_filters
+
+        for f in filters:
+            base_query = base_query.filter(f)
+        return base_query

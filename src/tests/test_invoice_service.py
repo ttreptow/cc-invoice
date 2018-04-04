@@ -79,3 +79,11 @@ class TestInvoiceService:
 
         assert {"invoice_id": 1} == return_value
         assert 0 == len(line_item_service.get_line_items())
+
+    def test_filter_is_cleared_on_finalize(self, invoice_service, line_item_service, filter_service):
+        line_item_service.add_items(LineItem(**item) for item in ITEMS + CAMPAIGN_3_ITEMS)
+        filter_service.add_filter("campaign_id", "eq", 1)
+
+        invoice_service.finalize()
+
+        assert 0 == len(filter_service.get_active_filters())

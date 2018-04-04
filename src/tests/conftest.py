@@ -7,7 +7,8 @@ from werkzeug.local import LocalProxy
 
 from invoice_service.app_factory import create_app
 from invoice_service.models.base import BaseModel
-from invoice_service.services import LINE_ITEM_SERVICE, INVOICE_SERVICE
+from invoice_service.services import LINE_ITEM_SERVICE, INVOICE_SERVICE, FILTER_SERVICE
+from invoice_service.services.item_filter_service import ItemFilterService
 from invoice_service.services.invoice_service import InvoiceService
 from invoice_service.services.line_item_service import LineItemService
 from invoice_service.services.service_factory import ServiceFactory
@@ -65,6 +66,11 @@ def invoice_service(dummy_service_factory):
 
 
 @pytest.fixture
+def filter_service(dummy_service_factory):
+    return dummy_service_factory.create_proxy_service(FILTER_SERVICE)
+
+
+@pytest.fixture
 def dummy_service_factory(session_maker):
     return DummyServiceFactory(session_maker)
 
@@ -74,7 +80,8 @@ class DummyServiceFactory:
         self.session_maker = session_maker
         self.services = {
             INVOICE_SERVICE: InvoiceService(self),
-            LINE_ITEM_SERVICE: LineItemService(self)
+            LINE_ITEM_SERVICE: LineItemService(self),
+            FILTER_SERVICE: ItemFilterService(self)
         }
 
     def create_proxy_service(self, service_name):
