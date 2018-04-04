@@ -3,8 +3,9 @@ from unittest.mock import Mock
 import pytest
 
 from invoice_service.app_factory import create_app
-from invoice_service.services import LINE_ITEM_SERVICE, INVOICE_SERVICE
+from invoice_service.services import LINE_ITEM_SERVICE, INVOICE_SERVICE, FILTER_SERVICE
 from invoice_service.services.invoice_service import InvoiceService
+from invoice_service.services.item_filter_service import ItemFilterService
 from invoice_service.services.line_item_service import LineItemService
 from invoice_service.services.service_factory import ServiceFactory
 
@@ -20,11 +21,17 @@ def dummy_invoice_service():
 
 
 @pytest.fixture
-def mock_service_factory_builder(dummy_line_item_service, dummy_invoice_service):
+def dummy_filter_service():
+    return Mock(ItemFilterService)
+
+
+@pytest.fixture
+def mock_service_factory_builder(dummy_line_item_service, dummy_invoice_service, dummy_filter_service):
     def build(app):
         serv_fact = ServiceFactory(app)
         serv_fact.register_service(LINE_ITEM_SERVICE, lambda sf: dummy_line_item_service)
         serv_fact.register_service(INVOICE_SERVICE, lambda sf: dummy_invoice_service)
+        serv_fact.register_service(FILTER_SERVICE, lambda sf: dummy_filter_service)
         return serv_fact
     return build
 

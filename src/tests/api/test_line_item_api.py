@@ -1,6 +1,7 @@
 from flask import json
 
 from invoice_service.exceptions import ItemNotFound, ReadOnlyItemValueError, InvalidUpdateError
+from invoice_service.models.active_item_filter import ActiveItemFilter
 from invoice_service.models.line_item import LineItem
 
 
@@ -97,3 +98,37 @@ class TestLineItemApi:
 
         assert 200 == r.status_code
         assert expected == json.loads(r.data)[0]
+
+    def test_set_filter(self, app_client, dummy_filter_service):
+        dummy_filter_service.add_filter.return_value = ""
+        filter_params = {"field_name": "campaign_id", "operation": "eq", "values": 2}
+        r = app_client.put("/lineitems/filters", data=json.dumps(filter_params))
+
+        assert 200 == r.status_code
+        dummy_filter_service.add_filter.assert_called_once_with(**filter_params)
+        dummy_filter_service.clear_active_filters.assert_called_once()
+
+    def test_add_filter(self, app_client, dummy_filter_service):
+        dummy_filter_service.add_filter.return_value = ""
+        filter_params = {"field_name": "campaign_id", "operation": "eq", "values": 2}
+        r = app_client.post("/lineitems/filters", data=json.dumps(filter_params))
+
+        assert 200 == r.status_code
+        dummy_filter_service.add_filter.assert_called_once_with(**filter_params)
+        dummy_filter_service.clear_active_filters.assert_not_called()
+
+    def test_clear_filters(self, app_client, dummy_filter_service):
+        r = app_client.delete("/lineitems/filters")
+
+        assert 200 == r.status_code
+        dummy_filter_service.clear_active_filters.assert_called_once()
+
+    def test_get_filters(self, app_client, dummy_filter_service):
+        filter_data = {"field_name": "campaign_id", "operation": "eq", "values": 2, "id": None}
+        filters = [ActiveItemFilter(**filter_data)]
+        dummy_filter_service.get_active_filters.return_value = filters
+
+        r = app_client.get("/lineitems/filters")
+
+        assert 200 == r.status_code
+        assert filter_data == json.loads(r.data)[0]
