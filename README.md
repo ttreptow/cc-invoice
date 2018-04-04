@@ -39,7 +39,7 @@ Payload should be a JSON dictionary with the format:
 Sets a filter on the line items
 
 Payload:
-```json
+```
 {
 "field_name": "name of line item field to filter", # , e.g. "campaign_id"
 "operation": "eq", #one of "eq" or "in"
