@@ -61,3 +61,17 @@ class TestFullStack:
         assert putresp.status_code == 200
         assert totalresp.status_code == 200
         assert 4811950011.273662 - 35466.90013675345 == total
+
+    def test_set_filter(self, invoice_app):
+        initial_total_resp = invoice_app.get("/invoices/current/total")
+        filter_data = {"field_name": "campaign_id", "operation": "in", "values": [5, 6, 22]}
+        invoice_app.put("/lineitems/filters", data=json.dumps(filter_data))
+        getitems_resp = invoice_app.get("/lineitems")
+        filtered_total_resp = invoice_app.get("/invoices/current/total")
+
+        initial_total = json.loads(initial_total_resp.data)
+        filtered_items = json.loads(getitems_resp.data)
+        filtered_total = json.loads(filtered_total_resp.data)
+
+        assert filtered_total < initial_total
+        assert len(filtered_items) < 10000  # original data has 10000 items

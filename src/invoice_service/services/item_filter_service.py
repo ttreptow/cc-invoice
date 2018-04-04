@@ -1,5 +1,7 @@
 import json
 
+from sqlalchemy.orm import make_transient
+
 from invoice_service.models.active_item_filter import ActiveItemFilter
 
 
@@ -9,9 +11,11 @@ class ItemFilterService:
 
     def get_active_filters(self):
         session = self.session_maker()
-        filters = session.query(ActiveItemFilter).all()
-        for f in filters:
+        filters = []
+        for f in session.query(ActiveItemFilter):
+            make_transient(f)
             f.values = json.loads(f.values)
+            filters.append(f)
         return filters
 
     def add_filter(self, field_name, operation, values):

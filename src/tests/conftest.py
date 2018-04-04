@@ -18,18 +18,18 @@ def session_maker():
 
 
 @pytest.fixture
-def line_item_service(dummy_service_factory):
-    return dummy_service_factory.create_proxy_service(LINE_ITEM_SERVICE)
+def line_item_service(service_factory):
+    return service_factory.create_proxy_service(LINE_ITEM_SERVICE)
 
 
 @pytest.fixture
-def invoice_service(dummy_service_factory):
-    return dummy_service_factory.create_proxy_service(INVOICE_SERVICE)
+def invoice_service(service_factory):
+    return service_factory.create_proxy_service(INVOICE_SERVICE)
 
 
 @pytest.fixture
-def filter_service(dummy_service_factory):
-    return dummy_service_factory.create_proxy_service(FILTER_SERVICE)
+def filter_service(service_factory):
+    return service_factory.create_proxy_service(FILTER_SERVICE)
 
 
 @pytest.fixture

@@ -20,9 +20,16 @@ class TestFilterService:
 
         assert 0 == len(filter_service.get_active_filters())
 
-    def test_set_get_filter_preservers_value_type(self, filter_service):
+    def test_set_get_filter_preserves_value_type(self, filter_service):
         filter_service.add_filter("campaign_id", "eq", 1)
 
         active_filters = filter_service.get_active_filters()
 
         assert 1 == active_filters[0].values
+
+    def test_set_get_filter_with_list_values(self, filter_service):
+        filter_service.add_filter("campaign_id", "in", [1, 2, 3])
+
+        active_filters = filter_service.get_active_filters()
+
+        assert [1, 2, 3] == active_filters[0].values

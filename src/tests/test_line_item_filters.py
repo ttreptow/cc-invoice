@@ -1,5 +1,5 @@
 import pytest
-from sqlalchemy.sql.elements import BinaryExpression
+from sqlalchemy.sql.elements import BinaryExpression, Grouping
 
 from invoice_service.filters.line_item_filters import InvalidFilterField, InvalidFilterOperation, build_line_item_filter
 
@@ -20,3 +20,8 @@ class TestFilterBuilder:
         assert f.right.value == 1
         assert f.left.key == "campaign_id"
 
+    def test_filter_in(self):
+        f = build_line_item_filter("campaign_id", "in", [1, 2, 3])
+
+        assert isinstance(f, BinaryExpression)
+        assert isinstance(f.right, Grouping)
