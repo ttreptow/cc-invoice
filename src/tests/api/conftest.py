@@ -38,7 +38,8 @@ def mock_service_factory_builder(dummy_line_item_service, dummy_invoice_service,
 
 @pytest.fixture(autouse=True)
 def dummy_invoice_app(mock_service_factory_builder):
-    config = {'SQLALCHEMY_DATABASE_URI': "sqlite:///:memory:"}
+    config = {'SQLALCHEMY_DATABASE_URI': "sqlite:///:memory:",
+              "SQLALCHEMY_TRACK_MODIFICATIONS": False}
     app = create_app(config=config, service_factory_builder=mock_service_factory_builder)
     app.testing = True
     with app.test_request_context():

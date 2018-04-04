@@ -12,7 +12,8 @@ from invoice_service.services.service_factory import ServiceFactory
 @pytest.fixture
 def invoice_app(placement_test_data):
     config = {'SQLALCHEMY_DATABASE_URI': "sqlite:///:memory:",
-              'SQLALCHEMY_ECHO': True}
+              'SQLALCHEMY_ECHO': True,
+              "SQLALCHEMY_TRACK_MODIFICATIONS": False}
     app = create_app(config=config)
     app.testing = True
     with app.test_request_context():

@@ -1,7 +1,10 @@
-from flask import Flask, g
+import os
+
+from flask import Flask, g, json
 
 from invoice_service.api.invoice_service_api import invoices
 from invoice_service.api.line_item_api import line_items
+from invoice_service.models.line_item import LineItem
 from invoice_service.services import LINE_ITEM_SERVICE, INVOICE_SERVICE, FILTER_SERVICE
 from invoice_service.services.invoice_service import InvoiceService
 from invoice_service.services.item_filter_service import ItemFilterService
@@ -17,12 +20,21 @@ def build_service_factory(app):
     return service_factory
 
 
-def create_app(config_file=None, config=None, service_factory_builder=build_service_factory) -> Flask:
+def load_data_file(file_path, service_factory):
+    full_path = os.path.abspath(".")
+    print("Loading data from", full_path)
+    with open(file_path, "rt") as f:
+        data = json.load(f)
+    service_factory.create_proxy_service(LINE_ITEM_SERVICE).add_items(LineItem(**item) for item in data)
+    print("Added {} items".format(len(data)))
+
+
+def create_app(config=None, service_factory_builder=build_service_factory) -> Flask:
     app = Flask(__name__)
-    if config_file:
-        app.config.from_pyfile(config_file)
     if config:
         app.config.update(config)
+    else:
+        app.config.from_envvar("CCINVOICE_CONFIG")
     app.register_blueprint(line_items)
     app.register_blueprint(invoices)
     _service_factory = service_factory_builder(app)
@@ -31,4 +43,8 @@ def create_app(config_file=None, config=None, service_factory_builder=build_serv
         service_factory = _service_factory
 
     app.app_ctx_globals_class = ContextGlobals
+
+    if "DATA_FILE" in app.config:
+        with app.app_context():
+            load_data_file(app.config["DATA_FILE"], _service_factory)
     return app

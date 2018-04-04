@@ -7,11 +7,17 @@ This is an application I wrote for a coding challenge. It is a simple Flask app 
 ```pip install .```
 1. Run the app.
 
-Linux: ```FLASK_APP=src/invoice_service/app.py flask run```
+Linux:
+```
+export FLASK_APP=src/invoice_service/app.py
+export CCINVOICE_CONFIG=ccinvoice.cfg
+flask run
+```
 
 Windows: 
 ```
 set FLASK_APP=src\invoice_service\app.py
+set CCINVOICE_CONFIG=ccinvoice.cfg
 flask run
 ```
 
