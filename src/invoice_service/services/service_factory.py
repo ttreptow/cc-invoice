@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.local import LocalProxy
 
 from invoice_service.exceptions import InvalidServiceError
+from invoice_service.models.base import BaseModel
 
 
 class ServiceFactory:
@@ -20,6 +21,7 @@ class ServiceFactory:
 
     def __init__(self, flask_app):
         self.db = SQLAlchemy(flask_app)
+        BaseModel.metadata.create_all(self.db.engine)
         self.registry = {}
 
     @property
